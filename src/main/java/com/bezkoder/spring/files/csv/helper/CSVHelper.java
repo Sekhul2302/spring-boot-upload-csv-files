@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.bezkoder.spring.files.csv.model.DataKyc;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -79,6 +80,39 @@ public class CSVHelper {
       return new ByteArrayInputStream(out.toByteArray());
     } catch (IOException e) {
       throw new RuntimeException("fail to import data to CSV file: " + e.getMessage());
+    }
+  }
+
+  public static List<DataKyc> mappingCsv(InputStream is) {
+    CSVFormat fmt = CSVFormat.EXCEL.withDelimiter('|');
+    try (
+
+            BufferedReader fileReader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            CSVParser csvParser = new CSVParser(fileReader,
+                    fmt.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim());) {
+
+      List<DataKyc> tutorials = new ArrayList<DataKyc>();
+
+      Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+
+      for (CSVRecord csvRecord : csvRecords) {
+        DataKyc dataKyc = new DataKyc(
+                csvRecord.get("TGL_TRX"),
+                csvRecord.get("NO_KONTRAK"),
+                csvRecord.get("NO_KTP"),
+                csvRecord.get("CIF"),
+                Integer.parseInt(csvRecord.get("CLIENT_ID")),
+                Integer.parseInt(csvRecord.get("KODE_PRODUK")),
+                csvRecord.get("FILE_PATH_KTP"),
+                csvRecord.get("FILE_PATH_SELFIE")
+        );
+
+        tutorials.add(dataKyc);
+      }
+
+      return tutorials;
+    } catch (IOException e) {
+      throw new RuntimeException("fail to parse CSV file: " + e.getMessage());
     }
   }
 

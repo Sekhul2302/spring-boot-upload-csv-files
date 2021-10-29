@@ -2,6 +2,7 @@ package com.bezkoder.spring.files.csv.controller;
 
 import java.util.List;
 
+import com.bezkoder.spring.files.csv.model.DataKyc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -10,17 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.bezkoder.spring.files.csv.service.CSVService;
 import com.bezkoder.spring.files.csv.helper.CSVHelper;
 import com.bezkoder.spring.files.csv.message.ResponseMessage;
 import com.bezkoder.spring.files.csv.model.Tutorial;
+
+import javax.validation.Valid;
 
 @CrossOrigin("http://localhost:8081")
 @Controller
@@ -74,6 +73,24 @@ public class CSVController {
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
         .contentType(MediaType.parseMediaType("application/csv"))
         .body(file);
+  }
+
+  @PostMapping("/scheduller")
+  public ResponseEntity<ResponseMessage> schedulerInsert() throws Exception {
+    String message = "Success insert data csv to db";
+
+    fileService.schedulerInsertKyc();
+
+    return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+  }
+
+  @RequestMapping(value = "/getDataKyc", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<ResponseMessage> getDataKyc(@RequestBody @Valid DataKyc request)throws Exception{
+    String message = "success";
+
+    List<DataKyc> kycList = fileService.getListbyKtp(request.getNoKtp());
+
+    return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message, kycList));
   }
 
 }
