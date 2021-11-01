@@ -33,12 +33,17 @@ public class DataKyc {
     private String pathKtp;
 
     @Column(name = "FILE_PATH_SELFIE")
-    private String pathSelvie;
+    private String pathSelfie;
+
+    private String tanggalAwal;
+
+    private String tanggalAkhir;
+
+    private boolean foto;
 
     public DataKyc(){}
 
-    public DataKyc(String tglTransaksi, String noKontrak, String noKtp, String cif, int clientId, int kodeProduk, String pathKtp, String pathSelvie) {
-
+    public DataKyc(String tglTransaksi, String noKontrak, String noKtp, String cif, int clientId, int kodeProduk, String pathKtp, String pathSelfie) {
         this.tglTransaksi = tglTransaksi;
         this.noKontrak = noKontrak;
         this.noKtp = noKtp;
@@ -46,7 +51,7 @@ public class DataKyc {
         this.clientId = clientId;
         this.kodeProduk = kodeProduk;
         this.pathKtp = pathKtp;
-        this.pathSelvie = pathSelvie;
+        this.pathSelfie = pathSelfie;
     }
 
     public String getTglTransaksi() {
@@ -101,15 +106,37 @@ public class DataKyc {
         return pathKtp;
     }
 
-    public void setPathKtp(String pathKtp) {
-        this.pathKtp = pathKtp;
+    public void setPathKtp(String pathKtp) { this.pathKtp = pathKtp; }
+
+    public String getPathSelfie() {
+        return pathSelfie;
     }
 
-    public String getPathSelvie() {
-        return pathSelvie;
+    public void setPathSelfie(String pathSelfie) {
+        this.pathSelfie = pathSelfie;
     }
 
-    public void setPathSelvie(String pathSelvie) {
-        this.pathSelvie = pathSelvie;
+    public String getTanggalAwal() {
+        return tanggalAwal;
+    }
+
+    public void setTanggalAwal(String tanggalAwal) {
+        this.tanggalAwal = tanggalAwal;
+    }
+
+    public String getTanggalAkhir() {
+        return tanggalAkhir;
+    }
+
+    public void setTanggalAkhir(String tanggalAkhir) {
+        this.tanggalAkhir = tanggalAkhir;
+    }
+
+    public boolean isFoto() {
+        return foto;
+    }
+
+    public void setFoto(boolean foto) {
+        this.foto = foto;
     }
 }

@@ -84,11 +84,11 @@ public class CSVController {
     return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
   }
 
-  @RequestMapping(value = "/getDataKyc", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(value = "/getDataKyc", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<ResponseMessage> getDataKyc(@RequestBody @Valid DataKyc request)throws Exception{
     String message = "success";
 
-    List<DataKyc> kycList = fileService.getListbyKtp(request.getNoKtp());
+    List<DataKyc> kycList = fileService.getDataKyc(request);
 
     return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message, kycList));
   }

@@ -20,10 +20,8 @@ import com.bezkoder.spring.files.csv.repository.DataKycRepository;
 import io.minio.GetObjectArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
-import io.minio.Result;
 import io.minio.errors.*;
 import io.minio.http.Method;
-import io.minio.messages.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +56,8 @@ public class CSVService {
   @Autowired
   DataKycRepository repositoryDataKyc;
 
+  final int BAREKSA = 5122;
+
   public void save(MultipartFile file) {
     try {
       List<Tutorial> tutorials = CSVHelper.csvToTutorials(file.getInputStream());
@@ -78,36 +78,93 @@ public class CSVService {
     return repository.findAll();
   }
 
-  public List<DataKyc> getListbyKtp(String noKtp) throws Exception {
-    logger.info("Start : Services getListbyKtp : " + noKtp);
+  public List<DataKyc> filterDataKyc(DataKyc request)  throws Exception{
 
-    List<DataKyc> test = new ArrayList<>();
+    int ClientId = request.getClientId();
+    String noKtp = request.getNoKtp();
+    String noKontrak = request.getNoKontrak();
+    String cif = request.getCif();
+    boolean foto = request.isFoto();
 
-    test = repositoryDataKyc.findDataByNoKtp(noKtp);
-
-    if(noKtp.equals("")){
-      test =  repositoryDataKyc.findAll();
+    if (!foto){
+      logger.info("Find Data kyc range tanggal "+request.getTanggalAwal()+" tanggalAkhir"+request.getTanggalAkhir());
+      return repositoryDataKyc.findBytglTransaksiBetween(request.getTanggalAwal(), request.getTanggalAkhir());
     }
+
+    if (ClientId != 0 && noKontrak.equals("") && noKtp.equals("") && cif.equals("")){
+      logger.info("Find By channel "+ClientId);
+      return repositoryDataKyc.findByClientId(ClientId);
+    }
+
+    if (ClientId != 0 && !noKontrak.equals("") && noKtp.equals("") && cif.equals("")){
+      logger.info("Find By channel "+ClientId);
+      return repositoryDataKyc.findByClientIdAndNoKontrak(ClientId, noKontrak);
+    }
+
+    if (ClientId != 0 && !noKtp.equals("")){
+      logger.info("Find By channel "+ClientId+ " no ktp " +noKtp);
+      return repositoryDataKyc.findByClientIdAndNoKtp(ClientId, noKtp);
+    }
+
+    if (ClientId != 0 && !cif.equals("") && noKontrak.equals("") && noKtp.equals("")){
+      logger.info("Scheduler insert data KYC called");
+      return repositoryDataKyc.findByClientIdAndCif(ClientId, cif);
+    }
+
+    if (ClientId !=0 && !noKontrak.equals("") && !noKtp.equals("") && cif.equals("")){
+      logger.info("Find By channel "+ClientId+ " no Kontrak " +noKontrak+ " no ktp " +noKtp);
+      return repositoryDataKyc.findByClientIdAndNoKontrakAndNoKtp(ClientId, noKontrak, noKtp);
+    }
+
+    if (ClientId !=0 && !noKontrak.equals("") && !cif.equals("") && noKtp.equals("")){
+      logger.info("Find By channel "+ClientId+ " no Kontrak " +noKontrak+ " cif " +cif);
+      return repositoryDataKyc.findByClientIdAndNoKontrakAndNoKtp(ClientId, noKontrak, cif);
+    }
+
+    if (ClientId !=0 && !noKtp.equals("") && !cif.equals("") && noKontrak.equals("")){
+      logger.info("Find By channel "+ClientId+ " no ktp " +noKtp+ " cif " +cif);
+      return repositoryDataKyc.findByClientIdAndNoKtpAndCif(ClientId, noKtp, cif);
+    }
+
+    logger.info("Scheduler insert data KYC called");
+    return repositoryDataKyc.findByClientId(ClientId);
+  }
+
+  public List<DataKyc> getDataKyc(DataKyc request) throws Exception {
+
+    List<DataKyc> result = new ArrayList<>();
+
+    result = this.filterDataKyc(request);
+
+    String urlFotoSelfie="";
+    String urlFotoKtp = "";
+    boolean foto = request.isFoto();
 
     List<DataKyc> dataKycs = new ArrayList<>();
     int index = 0;
-    for (Object a : test){
+    for (Object a : result){
 
-      String pathMinioSelfie = test.get(index).getTglTransaksi()+"/SELFIE/"+test.get(index).getPathSelvie();
-      String pathMinioKtp = test.get(index).getTglTransaksi()+"/KTP/"+test.get(index).getPathKtp();
-      String urlFotoSelfie = this.getUrlPhoto(pathMinioSelfie);
-      String urlFotoKtp = this.getUrlPhoto(pathMinioKtp);
+      String tglTransaksi = result.get(index).getTglTransaksi().replace("-", "");
+
+      String pathMinioSelfie = tglTransaksi+"/SELFIE/"+result.get(index).getPathSelfie();
+      String pathMinioKtp = tglTransaksi+"/KTP/"+result.get(index).getPathKtp();
+
+      if(foto){
+        urlFotoSelfie = this.getUrlPhoto(pathMinioSelfie);
+        urlFotoKtp = this.getUrlPhoto(pathMinioKtp);
+      }
 
       DataKyc dataKyc1 = new DataKyc();
-      dataKyc1.setTglTransaksi(test.get(index).getTglTransaksi());
-      dataKyc1.setNoKontrak(test.get(index).getNoKontrak());
-      dataKyc1.setNoKtp(test.get(index).getNoKtp());
-      dataKyc1.setCif(test.get(index).getCif());
-      dataKyc1.setClientId(test.get(index).getClientId());
-      dataKyc1.setKodeProduk(test.get(index).getKodeProduk());
-      dataKyc1.setPathKtp(test.get(index).getPathKtp());
-      dataKyc1.setPathSelvie(urlFotoSelfie);
-      dataKyc1.setPathKtp(urlFotoKtp);
+      dataKyc1.setTglTransaksi(result.get(index).getTglTransaksi());
+      dataKyc1.setNoKontrak(result.get(index).getNoKontrak());
+      dataKyc1.setNoKtp(result.get(index).getNoKtp());
+      dataKyc1.setCif(result.get(index).getCif());
+      dataKyc1.setClientId(result.get(index).getClientId());
+      dataKyc1.setKodeProduk(result.get(index).getKodeProduk());
+      if(foto) {
+        dataKyc1.setPathSelfie(urlFotoSelfie);
+        dataKyc1.setPathKtp(urlFotoKtp);
+      }
       dataKycs.add(dataKyc1);
       index++;
     }
@@ -149,7 +206,7 @@ public class CSVService {
       Date date = Calendar.getInstance().getTime();
       DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
 //      String strDate = dateFormat.format(date);
-      String strDate = "20211025";
+      String strDate = "20211101";
       String getPath = strDate+"/CSV/NASABAHTE_"+strDate+".csv";
 
 
@@ -158,6 +215,7 @@ public class CSVService {
       List<DataKyc> tutorials = CSVHelper.mappingCsv(stream1);
 
       repositoryDataKyc.saveAll(tutorials);
+      logger.info("Insert csv success");
     } catch (Exception e) {
       e.printStackTrace();
     }
