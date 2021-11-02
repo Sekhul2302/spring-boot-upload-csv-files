@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Entity
 @Table(name = "nasabah_bareksa_kyc")
@@ -11,7 +12,7 @@ public class DataKyc {
 
 
     @Column(name = "TGL_TRX")
-    private String tglTransaksi;
+    private Date tglTransaksi;
 
     @Column(name = "NO_KONTRAK")
     private String noKontrak;
@@ -43,7 +44,7 @@ public class DataKyc {
 
     public DataKyc(){}
 
-    public DataKyc(String tglTransaksi, String noKontrak, String noKtp, String cif, int clientId, int kodeProduk, String pathKtp, String pathSelfie) {
+    public DataKyc(Date tglTransaksi, String noKontrak, String noKtp, String cif, int clientId, int kodeProduk, String pathKtp, String pathSelfie) {
         this.tglTransaksi = tglTransaksi;
         this.noKontrak = noKontrak;
         this.noKtp = noKtp;
@@ -54,11 +55,11 @@ public class DataKyc {
         this.pathSelfie = pathSelfie;
     }
 
-    public String getTglTransaksi() {
+    public Date getTglTransaksi() {
         return tglTransaksi;
     }
 
-    public void setTglTransaksi(String tglTransaksi) {
+    public void setTglTransaksi(Date tglTransaksi) {
         this.tglTransaksi = tglTransaksi;
     }
 

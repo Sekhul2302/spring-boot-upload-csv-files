@@ -7,8 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import com.bezkoder.spring.files.csv.model.DataKyc;
@@ -96,8 +101,12 @@ public class CSVHelper {
       Iterable<CSVRecord> csvRecords = csvParser.getRecords();
 
       for (CSVRecord csvRecord : csvRecords) {
+        String sDate1=csvRecord.get("TGL_TRX");
+        String dateInString = "19590709";
+        LocalDate date = LocalDate.parse(sDate1, DateTimeFormatter.BASIC_ISO_DATE);
+        Date date1=new SimpleDateFormat("yyyy-MM-dd").parse(String.valueOf(date));
         DataKyc dataKyc = new DataKyc(
-                csvRecord.get("TGL_TRX"),
+                date1,
                 csvRecord.get("NO_KONTRAK"),
                 csvRecord.get("NO_KTP"),
                 csvRecord.get("CIF"),
@@ -111,7 +120,7 @@ public class CSVHelper {
       }
 
       return tutorials;
-    } catch (IOException e) {
+    } catch (IOException | ParseException e) {
       throw new RuntimeException("fail to parse CSV file: " + e.getMessage());
     }
   }

@@ -9,6 +9,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -144,7 +145,7 @@ public class CSVService {
     int index = 0;
     for (Object a : result){
 
-      String tglTransaksi = result.get(index).getTglTransaksi().replace("-", "");
+      Date tglTransaksi = result.get(index).getTglTransaksi();
 
       String pathMinioSelfie = tglTransaksi+"/SELFIE/"+result.get(index).getPathSelfie();
       String pathMinioKtp = tglTransaksi+"/KTP/"+result.get(index).getPathKtp();
@@ -165,6 +166,7 @@ public class CSVService {
         dataKyc1.setPathSelfie(urlFotoSelfie);
         dataKyc1.setPathKtp(urlFotoKtp);
       }
+      dataKyc1.setFoto(request.isFoto());
       dataKycs.add(dataKyc1);
       index++;
     }
@@ -203,10 +205,10 @@ public class CSVService {
       MinioClient minioClient = MinioClient.builder().endpoint(endPoint)
               .credentials(accessKey, secretKey).build();
 
-      Date date = Calendar.getInstance().getTime();
+
       DateFormat dateFormat = new SimpleDateFormat("yyyymmdd");
 //      String strDate = dateFormat.format(date);
-      String strDate = "20211101";
+      String strDate = "20211031";
       String getPath = strDate+"/CSV/NASABAHTE_"+strDate+".csv";
 
 
