@@ -2,7 +2,12 @@ package com.bezkoder.spring.files.csv.controller;
 
 import java.util.List;
 
+import com.bezkoder.spring.files.csv.dto.RequestKyc;
+import com.bezkoder.spring.files.csv.dto.RequestKycChannel;
+import com.bezkoder.spring.files.csv.dto.ResponseDataKyc;
+import com.bezkoder.spring.files.csv.message.Response;
 import com.bezkoder.spring.files.csv.model.DataKyc;
+import com.bezkoder.spring.files.csv.service.BareksaKycService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -28,6 +33,9 @@ public class CSVController {
 
   @Autowired
   CSVService fileService;
+
+  @Autowired
+  BareksaKycService bareksaKycService;
 
   @PostMapping("/upload")
   public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file) {
@@ -91,6 +99,26 @@ public class CSVController {
     List<DataKyc> kycList = fileService.getDataKyc(request);
 
     return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message, kycList));
+  }
+
+  @RequestMapping(value = "/getDataKyc2", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Response> getDataKyc(@RequestBody @Valid RequestKyc request)throws Exception{
+    String message = "success";
+
+    Object dataKyc = new Object();
+
+    dataKyc = bareksaKycService.responseKyc(request);
+
+    return ResponseEntity.status(HttpStatus.OK).body(new Response("success", "getDataSuccess",dataKyc));
+  }
+
+  @RequestMapping(value = "/getKycChannel", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Response> listDataChannel(@RequestBody @Valid RequestKycChannel request){
+    String message = "success";
+
+    Object dataKyc = bareksaKycService.getKycBydate(request);
+
+    return ResponseEntity.status(HttpStatus.OK).body(new Response("success", "getDataSuccess",dataKyc));
   }
 
 }

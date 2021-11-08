@@ -9,14 +9,13 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.bezkoder.spring.files.csv.model.DataKyc;
+import com.bezkoder.spring.files.csv.dto.ResponseDataKyc;
 import com.bezkoder.spring.files.csv.repository.DataKycRepository;
 import io.minio.GetObjectArgs;
 import io.minio.GetPresignedObjectUrlArgs;
@@ -174,6 +173,12 @@ public class CSVService {
     return dataKycs;
   }
 
+  public ResponseDataKyc responseDataKyc (DataKyc request){
+    ResponseDataKyc responseDataKyc = new ResponseDataKyc();
+
+    return responseDataKyc;
+  }
+
   public String getUrlPhoto(String pathObject) throws ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, InvalidExpiresRangeException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
     MinioClient minioClient = MinioClient.builder().endpoint(endPoint)
             .credentials(accessKey, secretKey).build();
@@ -222,4 +227,5 @@ public class CSVService {
       e.printStackTrace();
     }
   }
+
 }

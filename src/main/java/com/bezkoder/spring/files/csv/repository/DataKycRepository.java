@@ -23,4 +23,5 @@ public interface DataKycRepository extends JpaRepository<DataKyc, Long> {
     List<DataKyc> findByClientIdAndNoKtpAndCif(int channel, String noKtp, String cif);
 
     List<DataKyc> findBytglTransaksiBetween(String tanggalAwal, String tanggalAkhir);
+
 }
